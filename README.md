@@ -22,7 +22,7 @@
   <a href="https://x.com/graphifyy"><img src="https://img.shields.io/badge/X-graphifyy-000000?logo=x&logoColor=white" alt="X"/></a>
 </p>
 
-Type `/graphify` in your AI coding assistant and it maps your entire project — code, docs, PDFs, images, videos — into a knowledge graph you can query instead of grepping through files.
+Type `/graphify` in your AI coding assistant and it maps your entire project (code, docs, PDFs, images, videos) into a **knowledge graph** you can **query instead of grepping** through files.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/Graphify-Labs/graphify/v8/docs/graph-hero.png" alt="graphify's interactive graph.html showing the FastAPI codebase as a force-directed knowledge graph with a legend of detected communities" width="900">
@@ -31,13 +31,13 @@ Type `/graphify` in your AI coding assistant and it maps your entire project —
   <em>The FastAPI codebase mapped by graphify. Every node is a concept, colors are detected communities, and the whole thing is clickable in graph.html.</em>
 </p>
 
-Works in Claude Code, Codex, OpenCode, Kilo Code, Cursor, Gemini CLI, GitHub Copilot CLI, VS Code Copilot Chat, Aider, Amp, OpenClaw, Factory Droid, Trae, Hermes, Kimi Code, Kiro, Pi, Devin CLI, and Google Antigravity.
+**Works in:** Claude Code, Codex, OpenCode, Kilo Code, Cursor, Gemini CLI, GitHub Copilot CLI, VS Code Copilot Chat, Aider, Amp, OpenClaw, Factory Droid, Trae, Hermes, Kimi Code, Kiro, Pi, Devin CLI, and Google Antigravity.
 
 ```
 /graphify .
 ```
 
-That's it. You get three files:
+That's it. You get **three files**:
 
 ```
 graphify-out/
@@ -187,7 +187,7 @@ for example `graphify claude install --project` or `graphify codex install --pro
 | Devin CLI | `graphify devin install` |
 | Google Antigravity | `graphify antigravity install` |
 
-Codex users also need `multi_agent = true` under `[features]` in `~/.codex/config.toml` for parallel extraction. CodeBuddy uses the same Agent tool and PreToolUse hook mechanism as Claude Code. Factory Droid uses the `Task` tool for parallel subagent dispatch. OpenClaw and Aider use sequential extraction (parallel agent support is still early on those platforms). Trae uses the Agent tool for parallel subagent dispatch and does **not** support PreToolUse hooks — AGENTS.md is the always-on mechanism.
+Codex users also need `multi_agent = true` under `[features]` in `~/.codex/config.toml` for parallel extraction. CodeBuddy uses the same Agent tool and PreToolUse hook mechanism as Claude Code. Factory Droid uses the `Task` tool for parallel subagent dispatch. OpenClaw and Aider use sequential extraction (parallel agent support is still early on those platforms). Trae uses the Agent tool for parallel subagent dispatch and does **not** support `PreToolUse` hooks, so AGENTS.md is the always-on mechanism.
 
 `--platform agents` (alias `--platform skills`) targets the generic cross-framework [Agent-Skills](https://github.com/anthropics/skills) locations: the spec's user-global `~/.agents/skills/` (read by `npx skills` and spec-compliant frameworks) for a global install, and `./.agents/skills/` for a project (`--project`) install. The bare `graphify install` stays single-platform (Claude Code) by design — use the named `agents` platform when you want the skill discoverable by any framework that reads `.agents/skills`.
 
@@ -256,19 +256,24 @@ Run this once in your project after building a graph:
 | Devin CLI | `graphify devin install` |
 | Google Antigravity | `graphify antigravity install` |
 
-This writes a small config file that tells your assistant to consult the knowledge graph for codebase questions — preferring scoped queries like `graphify query "<question>"` over reading the full report or grepping raw files. On platforms that support payload-bearing hooks (Claude Code, Gemini CLI), a hook fires automatically before search-style tool calls (and, on Claude Code, before reading source files one by one via the Read/Glob tools) and nudges your assistant toward the graph path. On the others (Codex, OpenCode, Cursor, etc.), the persistent instruction files (`AGENTS.md`, `.cursor/rules/`, etc.) provide the same query-first guidance. `GRAPH_REPORT.md` is still available for broad architecture review.
+This writes a small config file that tells your assistant to consult the knowledge graph for codebase questions, preferring scoped queries like `graphify query "<question>"` over reading the full report or grepping raw files.
 
-**CodeBuddy** does the same two things as Claude Code: writes a `CODEBUDDY.md` section telling CodeBuddy to read `graphify-out/GRAPH_REPORT.md` before answering architecture questions, and installs **PreToolUse hooks** (`.codebuddy/settings.json`) that fire before Bash search commands and file reads, nudging toward `graphify query` instead.
+- **Hook platforms** (Claude Code, Gemini CLI): a hook fires automatically before search-style tool calls (and, on Claude Code, before reading source files one by one via the Read/Glob tools) and nudges your assistant toward the graph path.
+- **Instruction-file platforms** (Codex, OpenCode, Cursor, etc.): persistent instruction files (`AGENTS.md`, `.cursor/rules/`, etc.) provide the same query-first guidance.
 
-**Codex** writes to `AGENTS.md` and also installs a **PreToolUse hook** in `.codex/hooks.json` that fires before every Bash tool call — same always-on mechanism as Claude Code.
+`GRAPH_REPORT.md` is still available for broad architecture review.
+
+**CodeBuddy** does the same two things as Claude Code: writes a `CODEBUDDY.md` section telling CodeBuddy to read `graphify-out/GRAPH_REPORT.md` before answering architecture questions, and installs `PreToolUse` hooks (`.codebuddy/settings.json`) that fire before Bash search commands and file reads, nudging toward `graphify query` instead.
+
+**Codex** writes to `AGENTS.md` and also installs a `PreToolUse` hook in `.codex/hooks.json` that fires before every Bash tool call, same always-on mechanism as Claude Code.
+
+**Kilo Code** installs the Graphify skill to `~/.config/kilo/skills/graphify/SKILL.md` and a native `/graphify` command to `~/.config/kilo/command/graphify.md`. `graphify kilo install` also writes `AGENTS.md` plus a native `tool.execute.before` plugin (`.kilo/plugins/graphify.js` + `.kilo/kilo.json` or `.kilo/kilo.jsonc` registration) so Kilo gets the same always-on graph reminder behavior through native `.kilo` config.
+
+**Cursor** writes `.cursor/rules/graphify.mdc` with `alwaysApply: true`, so Cursor includes it in every conversation automatically, no hook needed.
 
 To remove graphify from all platforms at once: `graphify uninstall` (add `--purge` to also delete `graphify-out/`). Or use the per-platform command (e.g. `graphify claude uninstall`).
 
 ---
-
-**Kilo Code** installs the Graphify skill to `~/.config/kilo/skills/graphify/SKILL.md` and a native `/graphify` command to `~/.config/kilo/command/graphify.md`. `graphify kilo install` also writes `AGENTS.md` plus a native **`tool.execute.before` plugin** (`.kilo/plugins/graphify.js` + `.kilo/kilo.json` or `.kilo/kilo.jsonc` registration) so Kilo gets the same always-on graph reminder behavior through native `.kilo` config.
-
-**Cursor** writes `.cursor/rules/graphify.mdc` with `alwaysApply: true` — Cursor includes it in every conversation automatically, no hook needed.
 
 ## What's in the report
 
@@ -297,7 +302,7 @@ To remove graphify from all platforms at once: `graphify uninstall` (add `--purg
 | Video / Audio | `.mp4 .mov .mp3 .wav` and more (requires `uv tool install graphifyy[video]`) |
 | YouTube / URLs | any video URL (requires `uv tool install graphifyy[video]`) |
 
-Code is extracted locally with no API calls (AST via tree-sitter). Everything else goes through your AI assistant's model API.
+Code is extracted **locally with no API calls** (AST via tree-sitter). Everything else goes through your AI assistant's model API.
 
 Google Drive for desktop `.gdoc`, `.gsheet`, and `.gslides` files are shortcut
 pointers, not document content. To include native Google Docs, Sheets, and Slides
@@ -484,7 +489,7 @@ These are only needed for **headless / CI extraction** (`graphify extract`). Whe
 - **Video / audio** — transcribed locally with faster-whisper. Nothing leaves your machine.
 - **Docs, PDFs, images** — sent to your AI assistant for semantic extraction (via the `/graphify` skill, using whatever model your IDE session runs). Headless `graphify extract` requires `GEMINI_API_KEY` / `GOOGLE_API_KEY` (Gemini), `MOONSHOT_API_KEY` (Kimi), `ANTHROPIC_API_KEY` (Claude), `OPENAI_API_KEY` (OpenAI), `DEEPSEEK_API_KEY` (DeepSeek), a running Ollama instance (`OLLAMA_BASE_URL`), AWS credentials via the standard provider chain (Bedrock - no API key needed, uses IAM), or the `claude` CLI binary (Claude Code - no API key needed, uses your Claude subscription). The `--dedup-llm` flag uses the same key.
 - **Data residency** — `graphify extract` auto-detects which provider to use based on which API key is set (priority: Gemini → Kimi → Claude → OpenAI → DeepSeek → Azure → Bedrock → Ollama). For code with data-residency requirements, use `--backend ollama` (fully local) or pass an explicit `--backend` flag. Kimi (`MOONSHOT_API_KEY`) routes to Moonshot AI servers in China.
-- No telemetry, no usage tracking, no analytics.
+- **No telemetry**, no usage tracking, no analytics.
 - **Query logging** — every `graphify query`, `graphify path`, `graphify explain`, and MCP `query_graph` call is logged to `~/.cache/graphify-queries.log` in JSON Lines format (timestamp, question, corpus, nodes returned, duration). Full subgraph responses are **not** stored by default. Set `GRAPHIFY_QUERY_LOG_DISABLE=1` to opt out, or `GRAPHIFY_QUERY_LOG=/dev/null` to silence without disabling the code path.
 
 ---
@@ -726,7 +731,7 @@ graphify label ./my-project --backend=openai --model gpt-4o   # force a specific
 
 ---
 
-## Built on graphify — Penpax
+## Built on graphify: Penpax
 
 [**Penpax**](https://graphifylabs.ai) is the always-on layer built on top of graphify — it applies the same graph approach to your entire working life: meetings, browser history, emails, files, and code, updating continuously in the background.
 
